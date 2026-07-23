@@ -1,0 +1,11 @@
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const generateAccessToken = (payload) => jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
+const generateRefreshToken = (payload) => jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+const verifyAccessToken = (token) => jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+const verifyRefreshToken = (token) => jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+const generateCryptoToken = () => crypto.randomBytes(32).toString('hex');
+const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
+const setRefreshCookie = (res, token) => res.cookie('refreshToken', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
+const clearRefreshCookie = (res) => res.clearCookie('refreshToken');
+module.exports = { generateAccessToken, generateRefreshToken, verifyAccessToken, verifyRefreshToken, generateCryptoToken, hashToken, setRefreshCookie, clearRefreshCookie };
